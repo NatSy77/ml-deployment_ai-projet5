@@ -1,0 +1,27 @@
+# API
+fastapi
+uvicorn[standard]
+
+# Machine Learning
+scikit-learn
+pandas
+numpy
+
+# Gestion environnement
+python-dotenv
+
+# Base de données
+psycopg2-binary
+sqlalchemy
+
+# Tests
+pytest
+pytest-cov
+httpx     # pour tests async FastAPI
+
+# Utilitaires
+joblib
+
+# Formatage / qualité de code (optionnel mais recommandé)
+black
+isort
