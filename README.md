@@ -21,6 +21,7 @@ Le projet est développé pour **Futurisys**, une entreprise fictive souhaitant 
 ## Structure du dépôt
 
 ml-deployment_ai-projet5/
+
 │
 ├── app/
 │ ├── main.py # Application FastAPI (+ endpoints)
@@ -30,18 +31,22 @@ ml-deployment_ai-projet5/
 │ ├── crud.py # Fonctions d'accès BDD
 │ └── config.py # Gestion des variables d'environnement
 │
+
 ├── model/
 │ └── model_project4.pkl # Modèle issu du projet 4
 │
+
 ├── tests/
 │ ├── test_api.py
 │ ├── test_model.py
 │ └── test_db.py
 │
+
 ├── db/
 │ ├── create_db.sql # Script de création de la base
 │ └── samples/ # Exemples d'inputs/outputs du modèle
 │
+
 ├── requirements.txt
 ├── README.md
 ├── .gitignore
@@ -56,3 +61,4 @@ ml-deployment_ai-projet5/
 ```bash
 git clone https://github.com/NatSy77/ml-deployment_ai-projet5.git
 cd ml-deployment_ai-projet5
+
