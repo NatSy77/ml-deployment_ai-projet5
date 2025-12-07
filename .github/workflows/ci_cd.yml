@@ -43,9 +43,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Push to Hugging Face Space
-        uses: backendcloud/hugging-push@v0.2.3
+      - name: Sync with Hugging Face Space
+        uses: nateraw/huggingface-sync-action@v0.0.5
         with:
+          github_repo_id: 'NatSy77/ml-deployment_ai-projet5'
+          huggingface_repo_id: 'NatSy94/ml-deployment-ai-projet5'
           hf_token: ${{ secrets.HF_TOKEN }}
           repo_type: 'space'
-          huggingface_repo: 'ml-deployment-ai-projet5'
+          private: false
