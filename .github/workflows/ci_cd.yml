@@ -50,4 +50,3 @@ jobs:
           huggingface_repo_id: 'NatSy94/ml-deployment-ai-projet5'
           hf_token: ${{ secrets.HF_TOKEN }}
           repo_type: 'space'
-          private: false
