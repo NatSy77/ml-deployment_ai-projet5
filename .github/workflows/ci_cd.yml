@@ -33,20 +33,19 @@ jobs:
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
-    deploy_to_hf:
-      name: Deploy to Hugging Face Space (prod)
-      needs: tests
-      runs-on: ubuntu-latest
-      if: github.ref == 'refs/heads/main'
-  
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-  
-        - name: Push to Hugging Face Space
-          uses: backendcloud/hugging-push@v0.2.3
-          with:
-            hf_token: ${{ secrets.HF_TOKEN }}
-            repo_type: 'space'
-            huggingface_repo: 'ml-deployment-ai-projet5'
-        
+  deploy_to_hf:
+    name: Deploy to Hugging Face Space (prod)
+    needs: tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Push to Hugging Face Space
+        uses: backendcloud/hugging-push@v0.2.3
+        with:
+          hf_token: ${{ secrets.HF_TOKEN }}
+          repo_type: 'space'
+          huggingface_repo: 'ml-deployment-ai-projet5'
