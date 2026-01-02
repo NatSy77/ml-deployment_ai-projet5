@@ -49,9 +49,6 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-
-          # Add Hugging Face Space as remote
+          
           git remote add space https://NatSy94:${HF_TOKEN}@huggingface.co/spaces/NatSy94/ml-deployment-ai-projet5
-
-          # Force-push current branch to main on the Space
           git push space HEAD:main --force
