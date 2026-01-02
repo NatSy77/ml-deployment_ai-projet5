@@ -8,6 +8,8 @@ app_port: 7860
 pinned: false
 ---
 
+API FastAPI déployée avec Docker pour le projet OpenClassrooms Futurisys.
+
 # Déploiement d'un modèle de Machine Learning – Projet Futurisys  
 Projet OpenClassrooms – *Déployez votre modèle de machine learning*
 
