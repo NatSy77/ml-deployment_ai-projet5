@@ -40,8 +40,17 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (full history + LFS)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Install git-lfs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
 
       - name: Push to Hugging Face Space via git
         env:
@@ -49,6 +58,8 @@ jobs:
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-          
+
+          git remote remove space || true
           git remote add space https://NatSy94:${HF_TOKEN}@huggingface.co/spaces/NatSy94/ml-deployment-ai-projet5
+
           git push space HEAD:main --force
