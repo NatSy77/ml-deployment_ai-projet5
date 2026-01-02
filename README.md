@@ -1,3 +1,13 @@
+---
+title: "Déploiement ML – Futurisys"
+emoji: "🚀"
+colorFrom: "blue"
+colorTo: "purple"
+sdk: "docker"
+app_port: 7860
+pinned: false
+---
+
 # Déploiement d'un modèle de Machine Learning – Projet Futurisys  
 Projet OpenClassrooms – *Déployez votre modèle de machine learning*
 
