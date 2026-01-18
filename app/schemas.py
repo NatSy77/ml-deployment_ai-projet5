@@ -17,3 +17,10 @@ class PredictionRequest(BaseModel):
 class PredictionResponse(BaseModel):
     label: int
     proba: float
+
+class PredictFromDBRequest(BaseModel):
+    client_id: int = Field(..., ge=1)
+
+    class Config:
+        extra = "forbid"
+

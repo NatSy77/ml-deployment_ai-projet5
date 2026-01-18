@@ -74,3 +74,28 @@ ml-deployment_ai-projet5/
 git clone https://github.com/NatSy77/ml-deployment_ai-projet5.git
 cd ml-deployment_ai-projet5
 
+## Intégration d’une base PostgreSQL et traçabilité
+
+Une base de données PostgreSQL est utilisée en local afin de stocker :
+- le dataset complet des clients (`clients`)
+- les requêtes envoyées au modèle (`prediction_requests`)
+- les prédictions générées (`prediction_outputs`)
+
+### Architecture de la base
+- `clients` : contient les features numériques utilisées par le modèle
+- `prediction_requests` : snapshot des features utilisées lors de chaque prédiction
+- `prediction_outputs` : résultats du modèle (label, probabilité, seuil)
+
+### Principe de fonctionnement
+L’endpoint `/predict` reçoit un `client_id`.  
+Les features sont récupérées depuis la base PostgreSQL, puis :
+1. l’input est enregistré dans `prediction_requests`
+2. la prédiction est calculée par le modèle
+3. l’output est enregistré dans `prediction_outputs`
+
+Cela garantit une traçabilité complète des échanges entre l’API et le modèle.
+
+### Exemple de vérification SQL
+```sql
+SELECT * FROM prediction_requests ORDER BY created_at DESC LIMIT 3;
+SELECT * FROM prediction_outputs ORDER BY created_at DESC LIMIT 3;
