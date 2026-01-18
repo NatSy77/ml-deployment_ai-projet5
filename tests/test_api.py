@@ -1,7 +1,7 @@
 def test_predict_valid(client):
     payload = {"text": "Ce produit est excellent"}
     r = client.post("/predict", json=payload)
-    assert r.status_code == 200
+    assert r.status_code == 200, r.text
     assert "label" in r.json()
     assert "proba" in r.json()
 

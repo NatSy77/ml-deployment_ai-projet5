@@ -40,24 +40,53 @@ def health():
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(request: PredictionRequest):
-    """
-    Retourne la prédiction du modèle à partir du champ `text`.
-
-    La validation d'entrée (types, min_length, champs extra interdits...)
-    doit être gérée côté Pydantic dans PredictionRequest.
-    """
-    # Sécurité : si startup n'a pas chargé le modèle (cas anormal)
     artifacts = getattr(app.state, "model_artifacts", None)
     if artifacts is None:
         raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
-        label, proba = predict_text(artifacts, request.text)
+        # Cas 1 : load_model_artifacts() renvoie un dict
+        if isinstance(artifacts, dict):
+            # adapte les clés possibles
+            model = artifacts.get("model") or artifacts.get("clf") or artifacts.get("pipeline")
+            vectorizer = artifacts.get("vectorizer") or artifacts.get("tfidf") or artifacts.get("preprocessor")
+
+            if model is None and "pipeline" not in artifacts:
+                raise HTTPException(status_code=500, detail="Model artifacts invalid (missing model)")
+
+            # Si predict_text attend (artifacts, text)
+            try:
+                label, proba = predict_text(artifacts, request.text)
+            except TypeError:
+                # Si predict_text attend (model, vectorizer, text) ou (model, text)
+                if vectorizer is not None:
+                    label, proba = predict_text(model, vectorizer, request.text)
+                else:
+                    label, proba = predict_text(model, request.text)
+
+        # Cas 2 : load_model_artifacts() renvoie un tuple/list
+        elif isinstance(artifacts, (tuple, list)):
+            if len(artifacts) == 2:
+                model, vectorizer = artifacts
+                label, proba = predict_text(model, vectorizer, request.text)
+            elif len(artifacts) == 1:
+                (model,) = artifacts
+                label, proba = predict_text(model, request.text)
+            else:
+                raise HTTPException(status_code=500, detail="Model artifacts invalid (unexpected tuple size)")
+
+        # Cas 3 : c’est directement un modèle/pipeline sklearn
+        else:
+            model = artifacts
+            try:
+                label, proba = predict_text(model, request.text)
+            except TypeError:
+                # fallback : si predict_text attend (artifacts, text)
+                label, proba = predict_text({"model": model}, request.text)
+
     except HTTPException:
-        # Si predict_text lève déjà des HTTPException, on les propage telles quelles
         raise
     except Exception:
-        # Ne pas exposer de détails internes en prod : message générique
         raise HTTPException(status_code=500, detail="Erreur lors de l'inférence du modèle")
 
     return PredictionResponse(label=label, proba=proba)
