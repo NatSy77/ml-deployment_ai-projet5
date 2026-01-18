@@ -1,6 +1,9 @@
+import logging
 from fastapi import FastAPI, HTTPException
 from app.schemas import PredictionRequest, PredictionResponse
 from app.models_ml import load_model_artifacts, predict_text, ModelNotLoadedError
+
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(
     title="ML Deployment API",
@@ -86,7 +89,11 @@ def predict(request: PredictionRequest):
 
     except HTTPException:
         raise
-    except Exception:
-        raise HTTPException(status_code=500, detail="Erreur lors de l'inférence du modèle")
+    except Exception as e:
+        logger.exception("Inference failed")
+        raise HTTPException(
+            status_code=500,
+            detail="Erreur lors de l'inférence du modèle"
+        )
 
     return PredictionResponse(label=label, proba=proba)

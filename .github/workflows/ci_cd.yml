@@ -17,6 +17,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install git-lfs and pull LFS objects
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+          git lfs pull
+
+      - name: Debug - check model file is not an LFS pointer
+        run: |
+          echo "=== Repo root ==="
+          ls -lah
+          echo "=== model dir ==="
+          ls -lah model || true
+          echo "=== LFS tracked files ==="
+          git lfs ls-files || true
+          echo "=== Head of model file (should NOT show LFS pointer) ==="
+          head -n 5 model/* || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -30,6 +50,8 @@ jobs:
           pip install pytest pytest-cov
 
       - name: Run tests
+        env:
+          CI: "true"
         run: |
           pytest --maxfail=1 --disable-warnings -q
 
@@ -51,6 +73,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git-lfs
           git lfs install
+          git lfs pull
 
       - name: Push to Hugging Face Space via git
         env:
