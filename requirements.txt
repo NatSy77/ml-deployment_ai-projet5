@@ -25,3 +25,8 @@ joblib
 # Formatage / qualité de code (optionnel mais recommandé)
 black
 isort
+
+# Datasets
+sqlalchemy>=2.0
+psycopg[binary]
+
