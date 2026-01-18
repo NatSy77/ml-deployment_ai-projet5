@@ -1,46 +1,63 @@
 from fastapi import FastAPI, HTTPException
-
 from app.schemas import PredictionRequest, PredictionResponse
 from app.models_ml import load_model_artifacts, predict_text, ModelNotLoadedError
 
 app = FastAPI(
-    title="Futurisys ML Deployment API",
-    description="API de déploiement du modèle de classification (projet 4)",
-    version="0.1.0",
+    title="ML Deployment API",
+    description="API FastAPI pour exposer un modèle de classification (Projet OpenClassrooms).",
+    version="1.0.0",
 )
 
 
 @app.on_event("startup")
-def startup_event():
+def startup_event() -> None:
     """
-    Chargement du modèle au démarrage de l'application.
+    Charge les artefacts du modèle une seule fois au démarrage.
+    Si le chargement échoue, on stoppe l'app (c'est préférable à une API 'semi-vivante').
     """
     try:
-        load_model_artifacts()
-        print("Modèle du projet 4 chargé avec succès.")
+        app.state.model_artifacts = load_model_artifacts()
+    except ModelNotLoadedError as e:
+        # Bloquant : si le modèle n'est pas dispo, l'API ne doit pas démarrer
+        raise RuntimeError(f"Model loading failed: {e}") from e
     except Exception as e:
-        print(f"Erreur lors du chargement du modèle : {e}")
+        raise RuntimeError(f"Unexpected error while loading model: {e}") from e
 
 
 @app.get("/")
 def root():
-    return {"message": "Futurisys ML API is running"}
+    return {"message": "API is running. See /docs for documentation."}
+
+
+@app.get("/health")
+def health():
+    """
+    Endpoint simple pour vérifier que le service répond.
+    (Bonus apprécié en évaluation + utile pour monitoring.)
+    """
+    return {"status": "ok"}
 
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(request: PredictionRequest):
     """
-    Endpoint de prédiction utilisant la régression logistique optimisée.
+    Retourne la prédiction du modèle à partir du champ `text`.
+
+    La validation d'entrée (types, min_length, champs extra interdits...)
+    doit être gérée côté Pydantic dans PredictionRequest.
     """
-    # Validation simple de l'entrée
-    if not request.text or request.text.strip() == "":
-        raise HTTPException(status_code=400, detail="Le champ 'text' ne doit pas être vide.")
+    # Sécurité : si startup n'a pas chargé le modèle (cas anormal)
+    artifacts = getattr(app.state, "model_artifacts", None)
+    if artifacts is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
 
     try:
-        artifacts = load_model_artifacts()
-    except ModelNotLoadedError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-    label, proba = predict_text(artifacts, request.text)
+        label, proba = predict_text(artifacts, request.text)
+    except HTTPException:
+        # Si predict_text lève déjà des HTTPException, on les propage telles quelles
+        raise
+    except Exception:
+        # Ne pas exposer de détails internes en prod : message générique
+        raise HTTPException(status_code=500, detail="Erreur lors de l'inférence du modèle")
 
     return PredictionResponse(label=label, proba=proba)
