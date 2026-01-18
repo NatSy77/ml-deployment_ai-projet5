@@ -1,4 +1,5 @@
 import logging
+from app.schemas import PredictionRequest 
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
@@ -124,7 +125,21 @@ def predict_from_db(payload: PredictFromDBRequest, db: Session = Depends(get_db)
     db.commit()
     db.refresh(req_row)
     db.refresh(out_row)
+    
+    return PredictionResponse(label=int(label), proba=float(proba))
 
+
+@app.post("/predict_raw", response_model=PredictionResponse)
+def predict_raw(payload: PredictionRequest):
+    artifacts = getattr(app.state, "model_artifacts", None)
+    if artifacts is None:
+        raise HTTPException(status_code=503, detail="Model not loaded")
+
+    try:
+        label, proba = predict_features(artifacts, payload.features)
+    except Exception:
+        logger.exception("Inference failed (raw)")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'inférence du modèle")
 
     return PredictionResponse(label=int(label), proba=float(proba))
 
