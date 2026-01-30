@@ -53,8 +53,14 @@ jobs:
         env:
           CI: "true"
         run: |
-          pytest --maxfail=1 --disable-warnings -q
+          python -m pytest --maxfail=1 --disable-warnings -q --cov=app --cov-report=term-missing --cov-report=xml
 
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+  
   deploy_to_hf:
     name: Deploy to Hugging Face Space (prod)
     needs: tests
