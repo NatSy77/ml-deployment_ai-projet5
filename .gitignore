@@ -7,3 +7,6 @@ venv/
 coverage/
 htmlcov/
 data/
+
+.coverage
+coverage.xml
