@@ -17,6 +17,8 @@ Projet OpenClassrooms – *Déployez votre modèle de machine learning*
 
 Ce projet consiste à déployer en production le modèle de Machine Learning développé lors du **Projet 4 – Classification automatique d'informations**.  
 Le modèle repose sur une **régression logistique** permettant de prédire la probabilité qu’un client quitte ou reste dans l’entreprise.
+Le modèle de régression logistique atteint une accuracy de 85 % sur le jeu de test, avec un F1-score de 0.55 sur la classe churn, grâce à un seuil de décision optimisé.
+
 
 L’objectif est de rendre ce modèle accessible via une **API FastAPI**, tout en respectant les bonnes pratiques d’ingénierie logicielle :
 
@@ -38,6 +40,28 @@ Le projet est développé pour **Futurisys**, une entreprise fictive souhaitant 
 - **SQLAlchemy** : ORM pour l’accès à la base
 - **Docker** : conteneurisation de l’API
 - **GitHub Actions** : intégration continue
+
+---
+
+## Installation et lancement
+
+### 1. Cloner le projet
+
+```bash
+git clone https://github.com/NatSy77/ml-deployment_ai-projet5.git
+cd ml-deployment_ai-projet5
+```
+### 2. Installer les dépendances
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+### 3. Lancer l’API
+
+uvicorn app.main:app --reload --port 7860
+L’API sera disponible à l’adresse : http://localhost:7860
 
 ---
 
@@ -74,9 +98,7 @@ ml-deployment_ai-projet5/
 ├── README.md
 └── pyproject.toml
 
-
 ---
-
 
 ## Intégration d’une base PostgreSQL et traçabilité
 
@@ -102,6 +124,7 @@ Cela garantit une **traçabilité complète et auditabile** des prédictions du 
 ```sql
 SELECT * FROM prediction_requests ORDER BY created_at DESC LIMIT 3;
 SELECT * FROM prediction_outputs ORDER BY created_at DESC LIMIT 3;
+```
 
 ---
 
@@ -129,3 +152,20 @@ Une suite complète de tests a été mise en place afin de garantir la fiabilit�
 #### Tests unitaires et fonctionnels (sans base de données)
 ```bash
 python -m pytest -q
+```
+#### Tests avec base PostgreSQL (Docker requis)
+docker-compose up -d
+python -m pytest tests/test_db.py -q
+
+---
+
+## Documentation
+
+La documentation complète du projet est disponible dans le dossier `docs/` :
+
+- `docs/api.md` : documentation détaillée des endpoints de l’API
+- `docs/model.md` : documentation technique du modèle de Machine Learning
+
+Une documentation interactive est également accessible via Swagger à l’adresse :
+
+http://localhost:7860/docs
